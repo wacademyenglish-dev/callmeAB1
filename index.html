@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOLFFY | Call Me When You're Sober (B1)</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Config for Spotify Theme -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        spotify: {
+                            base: '#121212',
+                            surface: '#181818',
+                            elevated: '#282828',
+                            green: '#1DB954',
+                            greenHover: '#1ed760',
+                            text: '#FFFFFF',
+                            subtext: '#B3B3B3'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #121212;
+            color: #FFFFFF;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Ambient Orbs */
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(150px);
+            z-index: -1;
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .orb-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background-color: #1DB954; }
+        .orb-2 { bottom: -20%; right: -10%; width: 60vw; height: 60vw; background-color: #0D9488; animation-delay: -5s; }
+
+        /* Abstract Background Lines */
+        .bg-lines {
+            position: fixed; inset: 0; z-index: -2; opacity: 0.1;
+            background-image: linear-gradient(#0D9488 1px, transparent 1px), linear-gradient(90deg, #0D9488 1px, transparent 1px);
+            background-size: 100px 100px;
+            transform: perspective(500px) rotateX(60deg) scale(2);
+            transform-origin: top;
+        }
+
+        /* Glassmorphism & Borders */
+        .glass {
+            background: rgba(24, 24, 24, 0.6);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-card {
+            background: rgba(18, 18, 18, 0.65);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.02), 0 20px 40px rgba(0,0,0,0.8);
+        }
+        
+        .glass-card:hover {
+            background: rgba(24, 24, 24, 0.85);
+            transform: translateY(-5px);
+            border-color: rgba(29, 185, 84, 0.5);
+            box-shadow: inset 0 0 20px rgba(29,185,84,0.05), 0 20px 40px rgba(0,0,0,0.9);
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse-red { animation: pulseRed 0.5s ease-out; }
+        @keyframes pulseRed { 0% { background-color: rgba(239, 68, 68, 0.2); } 100% { background-color: transparent; } }
+
+        .pulse-green { animation: pulseGreen 0.5s ease-out; }
+        @keyframes pulseGreen { 0% { background-color: rgba(29, 185, 84, 0.2); } 100% { background-color: transparent; } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #1DB954; }
+
+        /* Sliders */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
+            background: #1DB954; cursor: pointer; margin-top: -10px;
+            box-shadow: 0 0 20px rgba(29, 185, 84, 0.8); transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+        /* 3D Flip Cards */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .card-inner { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .flipped .card-inner { transform: rotateY(180deg); }
+
+        /* Concept Pillars */
+        .pillar { transition: all 0.5s cubic-bezier(0.4, 0.2, 0.2, 1); cursor: pointer; }
+        .pillar-expanded { flex: 4; background: rgba(40,40,40,0.9) !important; border-color: #1DB954 !important;}
+        .pillar-collapsed { flex: 1; opacity: 0.5; }
+        .pillar-collapsed:hover { opacity: 0.8; }
+
+        /* Sync Lyrics */
+        .lyric-line { transition: all 0.2s; cursor: pointer; opacity: 0.4; }
+        .lyric-line:hover { opacity: 1; color: #FFFFFF; transform: translateX(10px); }
+        .lyric-active { opacity: 1; color: #1DB954; font-weight: 800; transform: scale(1.05) translateX(10px); border-left-color: #1DB954 !important; }
+
+        /* Word Chips (Lyric Builder) */
+        .draggable-word { 
+            cursor: grab; touch-action: manipulation; 
+            border-radius: 500px !important; background-color: #1DB954 !important; color: #000 !important; font-weight: 900 !important;
+            border: none !important; box-shadow: 0 4px 15px rgba(29,185,84,0.4);
+        }
+        .draggable-word:active { cursor: grabbing; transform: scale(0.95); opacity: 0.9; box-shadow: 0 2px 5px rgba(29,185,84,0.4); }
+        
+        .drop-zone {
+            border: 2px dashed rgba(29, 185, 84, 0.4) !important;
+            background: rgba(0,0,0,0.4) !important;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        .bucket-over { border-color: #1DB954 !important; background-color: rgba(29,185,84,0.15) !important; box-shadow: inset 0 0 30px rgba(29,185,84,0.2); }
+
+        /* Epic Start Button */
+        .btn-start-epic {
+            position: relative;
+            background: rgba(29, 185, 84, 0.1);
+            border: 1px solid #1DB954;
+            color: #1DB954;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(29, 185, 84, 0.2), inset 0 0 15px rgba(29, 185, 84, 0.1);
+        }
+        .btn-start-epic:hover {
+            background: #1DB954;
+            color: #000;
+            box-shadow: 0 0 40px rgba(29, 185, 84, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px) scale(1.02);
+        }
+        .btn-start-epic::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: skewX(-25deg);
+            transition: 0.6s;
+        }
+        .btn-start-epic:hover::before { left: 200%; }
+
+        /* Speaking Hub Panel */
+        .speaking-hub-panel {
+            position: relative;
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 24px 24px 20px 24px;
+            margin-top: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(29,185,84,0.05);
+        }
+        .speaking-hub-badge {
+            position: absolute;
+            top: -14px;
+            left: 24px;
+            background: #1DB954;
+            color: #000;
+            font-weight: 900;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 15px rgba(29, 185, 84, 0.5);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Ear Training Words */
+        .ear-word { cursor: pointer; transition: all 0.2s; border-bottom: 2px solid transparent; }
+        .ear-word:hover { border-bottom-color: #FFFFFF; }
+        .ear-wrong { color: #ef4444; border-bottom-color: #ef4444 !important; font-weight: 800; text-decoration: line-through; }
+        .ear-correct { color: #1DB954; font-weight: 800; border-bottom-color: #1DB954 !important;}
+
+        #wb-text-input { touch-action: manipulation; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen text-spotify-text text-sm">
+
+    <!-- Ambient Background -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="bg-lines"></div>
+
+    <div class="fixed inset-0 z-[-1] pointer-events-none overflow-hidden opacity-[0.07]">
+        <i data-lucide="activity" class="absolute top-[20%] left-[15%] w-16 h-16 text-white transform -rotate-12"></i>
+        <i data-lucide="music" class="absolute top-[60%] right-[20%] w-24 h-24 text-spotify-green transform rotate-45"></i>
+        <i data-lucide="headphones" class="absolute bottom-[15%] left-[25%] w-20 h-20 text-teal-400 transform rotate-12"></i>
+        <i data-lucide="hexagon" class="absolute top-[30%] right-[10%] w-12 h-12 text-blue-400 transform rotate-90"></i>
+    </div>
+
+    <!-- TOP NAV -->
+    <header class="glass fixed top-0 w-full z-50 h-16 flex items-center justify-between px-6">
+        <div class="flex items-center gap-4">
+            <button onclick="app.goHome()" class="text-spotify-subtext hover:text-white transition rounded-full p-2 bg-black/40 hover:bg-black/80">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full bg-spotify-green flex items-center justify-center">
+                    <i data-lucide="music" class="text-black w-4 h-4"></i>
+                </div>
+                <span class="font-black tracking-widest text-sm hidden md:inline">WOLF <span class="text-spotify-green">LABS</span></span>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div id="status-bar" class="hidden items-center gap-4 md:gap-6 font-semibold text-xs bg-black/50 px-5 py-2 rounded-full border border-white/10 backdrop-blur-md">
+            <div class="flex items-center gap-2">
+                <i data-lucide="heart" class="text-red-500 w-4 h-4 fill-red-500"></i>
+                <span id="hp-display" class="text-white">100 HP</span>
+            </div>
+            <div class="w-px h-4 bg-white/20"></div>
+            <div class="flex items-center gap-2">
+                <i data-lucide="zap" class="text-spotify-green w-4 h-4 fill-spotify-green"></i>
+                <span id="xp-display" class="text-white">0 XP</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button onclick="app.toggleFullscreen()" class="text-spotify-subtext hover:text-white transition" title="Fullscreen">
+                <i data-lucide="maximize" id="fs-icon" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main id="main-container" class="flex-1 mt-16 mb-28 overflow-y-auto relative p-4 md:p-12 flex justify-center items-center">
+        <!-- Dynamic Content Injected Here -->
+    </main>
+
+    <!-- PLAYER BAR (BOTTOM) -->
+    <footer class="glass fixed bottom-0 w-full h-28 flex items-center justify-between px-4 md:px-8 z-50">
+        <!-- Track Info -->
+        <div class="flex items-center gap-4 w-1/2 md:w-1/3">
+            <div class="w-14 h-14 md:w-16 md:h-16 rounded-md shadow-2xl overflow-hidden relative group border border-white/10 shrink-0">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="Album Art">
+                <div class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer backdrop-blur-sm">
+                    <i data-lucide="maximize-2" class="w-5 h-5 md:w-6 md:h-6 text-white"></i>
+                </div>
+            </div>
+            <div class="flex flex-col min-w-0">
+                <span class="font-black text-white text-sm md:text-lg truncate tracking-tight" id="player-title">Call Me When You're Sober</span>
+                <span class="text-xs md:text-sm text-spotify-subtext truncate mt-0.5" id="player-artist">Evanescence • B1 Level</span>
+            </div>
+        </div>
+
+        <!-- Controls & Progress -->
+        <div class="flex flex-col items-center justify-center w-auto md:w-1/3 max-2xl gap-3 px-2">
+            <div class="flex items-center gap-6 md:gap-8">
+                <button onclick="app.prevSlide()" class="text-spotify-subtext hover:text-white transition hover:scale-110" id="btn-prev">
+                    <i data-lucide="skip-back" class="w-5 h-5 md:w-6 md:h-6 fill-current"></i>
+                </button>
+                <button onclick="app.togglePlay()" class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-spotify-green text-black flex items-center justify-center hover:scale-105 hover:bg-spotify-greenHover transition transform shadow-[0_0_20px_rgba(29,185,84,0.4)] shrink-0">
+                    <i data-lucide="play" class="w-5 h-5 md:w-6 md:h-6 fill-current ml-1" id="play-icon"></i>
+                </button>
+                <button onclick="app.nextSlide()" class="text-spotify-subtext hover:text-white transition hover:scale-110" id="btn-next">
+                    <i data-lucide="skip-forward" class="w-5 h-5 md:w-6 md:h-6 fill-current"></i>
+                </button>
+            </div>
+            <div class="flex items-center gap-3 w-full text-[10px] md:text-xs font-bold text-spotify-subtext hidden md:flex">
+                <span id="progress-current" class="w-6 text-right">0</span>
+                <div class="h-1.5 flex-1 bg-white/10 rounded-full overflow-hidden relative group cursor-pointer min-w-[150px]">
+                    <div id="progress-bar-fill" class="h-full bg-white group-hover:bg-spotify-green transition-all duration-300 w-0 relative"></div>
+                </div>
+                <span id="progress-total" class="w-6">0</span>
+            </div>
+        </div>
+
+        <!-- Extra Actions -->
+        <div class="flex items-center justify-end w-auto md:w-1/3 gap-4 md:gap-6 hidden sm:flex">
+            <button onclick="app.toggleWhiteboard()" class="text-spotify-subtext hover:text-spotify-green transition p-2 bg-white/5 rounded-full hover:bg-white/10" title="Whiteboard"><i data-lucide="pen-tool" class="w-4 h-4 md:w-5 md:h-5"></i></button>
+            <button class="text-spotify-subtext hover:text-white transition"><i data-lucide="volume-2" class="w-4 h-4 md:w-5 md:h-5"></i></button>
+        </div>
+    </footer>
+
+    <!-- WHITEBOARD OVERLAY (TEXT ONLY) -->
+    <div id="whiteboard-container" class="fixed top-16 right-0 bottom-28 w-full sm:w-96 z-[60] bg-[#121212]/95 backdrop-blur-2xl border-l border-white/10 flex flex-col transform translate-x-full transition-transform duration-300 shadow-[-20px_0_50px_rgba(0,0,0,0.6)]">
+        <div class="p-4 border-b border-white/10 flex flex-col gap-4 shrink-0 bg-black/20">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="pen-tool" class="text-spotify-green w-5 h-5"></i>
+                    <span class="font-black text-white tracking-widest text-xs uppercase">Notepad</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="whiteboard.clear()" class="text-spotify-subtext hover:text-white flex items-center gap-1 text-xs font-bold bg-white/5 px-3 py-1.5 rounded-full"><i data-lucide="trash-2" class="w-3 h-3"></i> Clear</button>
+                    <button onclick="app.toggleWhiteboard()" class="text-spotify-subtext hover:text-white bg-white/5 p-1.5 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+            <div class="flex items-center justify-center gap-3" id="wb-colors">
+                <button class="color-btn active w-6 h-6 rounded-full bg-spotify-green border-2 border-white scale-110 transition-transform" data-color="#1DB954"></button>
+                <button class="color-btn w-6 h-6 rounded-full bg-white transition-transform" data-color="#FFFFFF"></button>
+                <button class="color-btn w-6 h-6 rounded-full bg-red-500 transition-transform" data-color="#EF4444"></button>
+                <button class="color-btn w-6 h-6 rounded-full bg-blue-500 transition-transform" data-color="#3B82F6"></button>
+                <button class="color-btn w-6 h-6 rounded-full bg-yellow-400 transition-transform" data-color="#FACC15"></button>
+            </div>
+        </div>
+        <div id="wb-area" class="relative flex-1 w-full h-full overflow-hidden">
+            <canvas id="wb-canvas" class="absolute inset-0 cursor-text w-full h-full bg-transparent"></canvas>
+            <textarea id="wb-text-input" class="hidden absolute bg-transparent border border-dashed border-spotify-subtext outline-none resize-none p-2 z-10 font-bold text-white shadow-lg rounded" placeholder="Type here..." style="font-size: 20px; min-width: 200px; min-height: 40px; line-height: 28px;"></textarea>
+        </div>
+    </div>
+
+    <!-- LOGIC & DATA -->
+    <script>
+        // --- DATA DOMAIN (24 SLIDES - 1 HOUR CLASS) ---
+        const lessonData = [
+            { type: 'bCover', title: 'Call Me When You\'re Sober', subtitle: 'Evanescence | UNIT 4: Boundaries (B1)', tags: ['B1 Intermediate', 'Imperatives', 'Time Clauses', 'Gothic Rock'] },
+            { type: 'bSoundcheck', emoji: '🛑', title: 'Vibe Check', question: 'Is it difficult to say "NO" to someone you care about?', speakingStarter: 'It is (hard/easy) for me to say no because...' },
+            { type: 'bSoundcheck', emoji: '☠️', title: 'Vibe Check', question: 'What are the clear signs of a toxic relationship?', speakingStarter: 'A relationship is toxic when...' },
+            { type: 'bBehindLyrics', words: [
+                { concept: 'Sober', icon: 'brain', rarity: 'Common', def: 'Not drunk. Clear in mind and actions.', q: 'When is it important to have a sober mind?', start: 'You need a sober mind when...' },
+                { concept: 'Boundary', icon: 'shield', rarity: 'Rare', def: 'A limit you set to protect yourself.', q: 'How do you establish a boundary?', start: 'To set a boundary, I usually...' },
+                { concept: 'Fake', icon: 'mask', rarity: 'Epic', def: 'Not genuine; an imitation.', q: 'How do you deal with fake friends?', start: 'If a friend is fake, I...' }
+            ]},
+            { type: 'bSoundcheck', emoji: '🐺', title: 'Pre-Watch', question: 'Why do artists use fairytales like "Little Red Riding Hood" in songs?', speakingStarter: 'I think they use fairytales because...' },
+            { type: 'bPreWatch', title: 'The Visual Vibe', task: 'Evanescence uses a "Little Red Riding Hood vs. The Big Bad Wolf" theme in this video. Look for who is really in control of the situation.', speakingStarter: 'I expect the video to be...' },
+            { type: 'bRhythmCheck', question: 'Prediction: Who do you think the wolf represents in this video?', options: ['Her fears', 'A toxic partner', 'Her family', 'Society'], correct: 1, successMsg: 'Good guess! The wolf is usually the antagonist.', speakingStarter: 'I chose this because...' },
+            { type: 'bVideo', title: 'Song Play: Official Video', url: 'https://www.youtube.com/embed/_Gqwi7Y96sk?autoplay=0', task: 'Watch the entire video. Notice the attitude of the lead singer (Amy Lee) throughout the story.' },
+            { type: 'bSoundcheck', emoji: '🎬', title: 'Post-Watch', question: 'What was your first reaction to the video?', speakingStarter: 'When I saw the video, I felt...' },
+            { type: 'bSoundcheck', emoji: '👑', title: 'Post-Watch', question: 'Did Little Red Riding Hood win in the end?', speakingStarter: 'I think she (won/lost) because...' },
+            { type: 'bLyricsSync', title: 'The Core Message', lyrics: [
+                { text: "Don't cry to me.", focus: "Negative Imperative", hook: "A direct command to stop an action.", followUp: "Is it hard to ignore someone crying?", starter: "When someone cries, I usually..." },
+                { text: "If you loved me...", focus: "Second Conditional", hook: "Imagining a different reality.", followUp: "Does love fix everything?", starter: "I believe love (does/doesn't) fix everything because..." },
+                { text: "You would be here with me.", focus: "The Consequence", hook: "The result of the imaginary condition.", followUp: "How important is presence in a relationship?", starter: "Being present is..." }
+            ]},
+            { type: 'bLogicGrammar', title: 'Grammar Beats: Time Clauses', rules: [
+                { rule: 'Imperative + When', desc: 'Give an order related to a future condition. "Call me when..."' },
+                { rule: 'When + Present Simple', desc: 'Even if it is the future, we use Present Simple after "when". "...when you ARE sober." (Not: when you will be)' }
+            ], speakingStarter: 'Complete: Text me when you...' },
+            { type: 'bRhythmCheck', question: 'Which sentence is grammatically correct?', options: ['Call me when you will arrive.', 'Call me when you arrive.', 'Call me when you arrived.', 'Calling me when you arrive.'], correct: 1, successMsg: 'Perfect! Use Present Simple after "when".', speakingStarter: 'Why is the first option incorrect?' },
+            { type: 'bRhythmCheck', question: 'What is a "Negative Imperative"?', options: ['A sad sentence', 'A command to NOT do something', 'A question', 'A suggestion'], correct: 1, successMsg: 'Correct! "Don\'t do that!"', speakingStarter: 'Give me one negative imperative.' },
+            { type: 'bCategorization', title: 'Lyric Builder', items: ['Call me', 'you are', 'when', 'sober'], buckets: ['The Command (Action)', 'The Condition (Time)'], mapping: [0, 1, 1, 1], speakingStarter: 'Drag the words to build the Grammar Beat.' },
+            { type: 'bCategorization', title: 'Lyric Builder II', items: ['Make up', 'your', 'mind'], buckets: ['Verb Phrase', 'Object'], mapping: [0, 1, 1], speakingStarter: 'Assemble the expression.' },
+            { type: 'bEarTraining', title: 'Ear Training', instructions: 'Click the word that Amy DID NOT sing in this line.', lyric: ['Don\'t', 'shout', 'to', 'me'], actualWords: ['Don\'t', 'cry', 'to', 'me'], wrongWordIndex: 1, successMsg: 'Perfect! She sings "Don\'t CRY to me".', speakingStarter: 'Read the correct sentence out loud.' },
+            { type: 'bEarTraining', title: 'Ear Training Part II', instructions: 'Find the intruder word in this verse.', lyric: ['You', 'want', 'me,', 'come', 'search', 'me'], actualWords: ['You', 'want', 'me,', 'come', 'find', 'me'], wrongWordIndex: 4, successMsg: 'Nailed it! "Come FIND me". Another imperative!', speakingStarter: 'Why does she use imperatives here?' },
+            { type: 'bConceptPillars', title: 'Deeper Themes', pillars: [
+                { title: 'Blame', text: 'Saying someone is responsible for a fault.', q: 'Do you usually blame yourself or others?', start: 'When things go wrong, I blame...' },
+                { title: 'Sacrifice', text: 'Giving up something valued.', q: 'What is the biggest sacrifice you have made?', start: 'The biggest sacrifice I made was...' },
+                { title: 'Control', text: 'Having power over a situation.', q: 'Is it hard to give up control?', start: 'Giving up control is...' }
+            ]},
+            { type: 'bDecisionStand', title: 'The Arena', question: 'How many chances should you give someone who keeps making the same mistake?', labels: ['Zero Chances', 'Infinite Chances'], speakingStarter: 'Defend your position on forgiveness.' },
+            { type: 'bDecisionStand', title: 'The Arena', question: 'In a relationship, who should take the blame when things end?', labels: ['100% Me', '100% Them'], speakingStarter: 'Why did you slide it there?' },
+            { type: 'bSoundcheck', emoji: '🤝', title: 'The Arena', question: 'Debate: "You should always stay friends with your ex." Do you agree?', speakingStarter: 'I strongly (agree/disagree) because...' },
+            { type: 'bWrap', title: 'Mission Clear', msg: 'You have mastered Imperatives, Time Clauses, and setting boundaries in English.', speakingStarter: 'What was your favorite new word today?' }
+        ];
+
+        // --- WHITEBOARD SYSTEM (TEXT ONLY) ---
+        const whiteboard = {
+            canvas: null, ctx: null, input: null, color: '#1DB954', typingPos: { x: 0, y: 0 },
+            init() {
+                this.canvas = document.getElementById('wb-canvas');
+                this.input = document.getElementById('wb-text-input');
+                if (!this.canvas || !this.input) return;
+                this.ctx = this.canvas.getContext('2d');
+                window.addEventListener('resize', () => this.resize());
+                this.canvas.addEventListener('click', this.handleCanvasClick.bind(this));
+                this.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.commitText(); } });
+                this.input.addEventListener('blur', () => this.commitText());
+                this.input.addEventListener('input', function() { this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px'; });
+                document.querySelectorAll('.color-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('border-2', 'border-white', 'scale-110'));
+                        e.target.classList.add('border-2', 'border-white', 'scale-110');
+                        this.color = e.target.getAttribute('data-color');
+                        if (!this.input.classList.contains('hidden')) this.input.style.color = this.color;
+                    });
+                });
+            },
+            resize() {
+                if(!this.canvas) return;
+                const parent = this.canvas.parentElement;
+                if (!parent) return;
+                let tempCanvas = null;
+                if (this.canvas.width > 0 && this.canvas.height > 0) {
+                    tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = this.canvas.width; tempCanvas.height = this.canvas.height;
+                    tempCanvas.getContext('2d').drawImage(this.canvas, 0, 0);
+                }
+                this.canvas.width = parent.clientWidth; this.canvas.height = parent.clientHeight;
+                if (tempCanvas && this.ctx) this.ctx.drawImage(tempCanvas, 0, 0);
+            },
+            handleCanvasClick(e) {
+                if (!this.input.classList.contains('hidden')) { this.commitText(); return; }
+                const rect = this.canvas.getBoundingClientRect();
+                let clientX = e.clientX; let clientY = e.clientY;
+                if(e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+                this.typingPos = { x: clientX - rect.left, y: clientY - rect.top };
+                this.input.value = '';
+                this.input.style.left = this.typingPos.x + 'px'; this.input.style.top = this.typingPos.y + 'px';
+                this.input.style.color = this.color;
+                this.input.style.height = '40px'; 
+                this.input.classList.remove('hidden'); this.input.classList.add('block');
+                setTimeout(() => this.input.focus(), 50);
+            },
+            commitText() {
+                if (this.input.classList.contains('hidden')) return;
+                const text = this.input.value.trim();
+                if (text !== '') {
+                    this.ctx.font = 'bold 20px Inter, sans-serif';
+                    this.ctx.fillStyle = this.color;
+                    this.ctx.textBaseline = 'top';
+                    const lines = text.split('\n');
+                    let currentY = this.typingPos.y + 8; 
+                    lines.forEach(line => { this.ctx.fillText(line, this.typingPos.x + 8, currentY); currentY += 28; });
+                }
+                this.input.classList.add('hidden'); this.input.classList.remove('block');
+            },
+            clear() {
+                if(this.ctx) { this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); this.input.classList.add('hidden'); }
+            }
+        };
+
+        // --- STATE MANAGEMENT ---
+        const app = {
+            trackData: lessonData,
+            currentIndex: -1, // -1 is Dashboard
+            hp: 100,
+            xp: 0,
+            isPlaying: false,
+
+            init() {
+                this.renderDashboard();
+                whiteboard.init(); 
+                lucide.createIcons();
+            },
+
+            loadLevel() {
+                this.currentIndex = 0;
+                this.hp = 100;
+                this.xp = 0;
+                document.getElementById('status-bar').classList.remove('hidden');
+                document.getElementById('status-bar').classList.add('flex');
+                this.renderSlide();
+            },
+
+            goHome() {
+                this.currentIndex = -1;
+                document.getElementById('status-bar').classList.add('hidden');
+                document.getElementById('status-bar').classList.remove('flex');
+                this.renderDashboard();
+            },
+
+            updateStatus() {
+                document.getElementById('hp-display').innerText = `${this.hp} HP`;
+                document.getElementById('xp-display').innerText = `${this.xp} XP`;
+                
+                if (this.currentIndex >= 0) {
+                    const current = this.currentIndex + 1;
+                    const total = this.trackData.length;
+                    document.getElementById('progress-current').innerText = current;
+                    document.getElementById('progress-total').innerText = total;
+                    document.getElementById('progress-bar-fill').style.width = `${(current / total) * 100}%`;
+                }
+            },
+
+            takeDamage(amount) {
+                this.hp = Math.max(0, this.hp - amount);
+                this.updateStatus();
+                document.getElementById('main-container').classList.add('pulse-red');
+                setTimeout(() => document.getElementById('main-container').classList.remove('pulse-red'), 500);
+            },
+
+            gainXP(amount) {
+                this.xp += amount;
+                this.updateStatus();
+                document.getElementById('main-container').classList.add('pulse-green');
+                setTimeout(() => document.getElementById('main-container').classList.remove('pulse-green'), 500);
+            },
+
+            nextSlide() {
+                if (this.currentIndex >= 0 && this.currentIndex < this.trackData.length - 1) {
+                    this.currentIndex++;
+                    this.renderSlide();
+                }
+            },
+
+            prevSlide() {
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    this.renderSlide();
+                }
+            },
+
+            togglePlay() {
+                this.isPlaying = !this.isPlaying;
+                const icon = document.getElementById('play-icon');
+                if (icon) {
+                    icon.setAttribute('data-lucide', this.isPlaying ? 'pause' : 'play');
+                    icon.classList.toggle('ml-1', !this.isPlaying);
+                }
+                lucide.createIcons();
+            },
+
+            toggleWhiteboard() {
+                const wb = document.getElementById('whiteboard-container');
+                if (wb) {
+                    if (wb.classList.contains('translate-x-full')) {
+                        // Open Whiteboard
+                        wb.classList.remove('translate-x-full');
+                        wb.classList.add('translate-x-0');
+                        setTimeout(() => whiteboard.resize(), 300);
+                    } else {
+                        // Close Whiteboard
+                        wb.classList.remove('translate-x-0');
+                        wb.classList.add('translate-x-full');
+                        whiteboard.commitText();
+                    }
+                }
+            },
+
+            toggleFullscreen() {
+                const elem = document.documentElement;
+                const icon = document.getElementById('fs-icon');
+                if (!document.fullscreenElement) {
+                    elem.requestFullscreen?.() || elem.webkitRequestFullscreen?.() || elem.msRequestFullscreen?.();
+                    if(icon) icon.setAttribute('data-lucide', 'minimize');
+                } else {
+                    document.exitFullscreen?.() || document.webkitExitFullscreen?.() || document.msExitFullscreen?.();
+                    if(icon) icon.setAttribute('data-lucide', 'maximize');
+                }
+                lucide.createIcons();
+            },
+
+            renderDashboard() {
+                const html = `
+                    <div class="fade-in max-w-5xl w-full flex flex-col items-center justify-center h-full pt-4">
+                        <div class="relative mb-10 group">
+                            <div class="absolute inset-0 bg-teal-500 rounded-full blur-[100px] opacity-40 group-hover:opacity-60 transition duration-700"></div>
+                            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" class="w-48 h-48 object-cover rounded-full border-[6px] border-spotify-green relative z-10 shadow-[0_0_60px_rgba(29,185,84,0.6)]">
+                        </div>
+                        <h1 class="text-6xl md:text-7xl font-black mb-4 tracking-tighter text-center">WOLF <span class="text-spotify-green">LABS</span></h1>
+                        <p class="text-spotify-subtext mb-12 text-xl text-center max-w-2xl font-medium tracking-wide">UNIT 4: BOUNDARIES (B1)</p>
+                        
+                        <div class="glass-card p-8 md:p-12 rounded-3xl flex flex-col group relative overflow-hidden border border-spotify-green/30 hover:border-spotify-green transition-all duration-300 w-full max-w-2xl">
+                            <div class="absolute inset-0 bg-gradient-to-br from-spotify-green/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                            <div class="flex items-center justify-between mb-8 z-10">
+                                <div>
+                                    <h2 class="text-3xl md:text-4xl font-black text-white mb-2">Call Me When You're Sober</h2>
+                                    <p class="text-spotify-green font-bold tracking-widest uppercase text-sm">Level B1 • Intermediate</p>
+                                </div>
+                            </div>
+                            <div class="mb-10 flex flex-wrap gap-3 z-10">
+                                <span class="text-sm font-bold bg-black/50 text-white px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">Time Clauses (When)</span>
+                                <span class="text-sm font-bold bg-black/50 text-white px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">Imperatives</span>
+                                <span class="text-sm font-bold bg-black/50 text-white px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">Boundaries</span>
+                            </div>
+                            <button onclick="app.loadLevel()" class="btn-start-epic w-full py-5 rounded-2xl font-black text-xl z-10 flex items-center justify-center gap-3">
+                                <i data-lucide="power" class="w-6 h-6"></i> INITIATE SEQUENCE
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('main-container').innerHTML = html;
+                document.getElementById('progress-current').innerText = '0';
+                document.getElementById('progress-bar-fill').style.width = '0%';
+                lucide.createIcons();
+            },
+
+            renderSlide() {
+                this.updateStatus();
+                if (this.currentIndex < 0) return;
+                const slide = this.trackData[this.currentIndex];
+                let contentHTML = '';
+
+                switch(slide.type) {
+                    case 'bGuide': contentHTML = this.renderBGuide(slide); break;
+                    case 'bCover': contentHTML = this.renderBCover(slide); break;
+                    case 'bPreWatch': contentHTML = this.renderBPreWatch(slide); break;
+                    case 'bVideo': contentHTML = this.renderBVideo(slide); break;
+                    case 'bSoundcheck': contentHTML = this.renderBSoundcheck(slide); break;
+                    case 'bBehindLyrics': contentHTML = this.renderBBehindLyrics(slide); break;
+                    case 'bLyricsSync': contentHTML = this.renderBLyricsSync(slide); break;
+                    case 'bConceptPillars': contentHTML = this.renderBConceptPillars(slide); break;
+                    case 'bLogicGrammar': contentHTML = this.renderBLogicGrammar(slide); break;
+                    case 'bCategorization': contentHTML = this.renderBCategorization(slide); break;
+                    case 'bRhythmCheck': contentHTML = this.renderBRhythmCheck(slide); break;
+                    case 'bEarTraining': contentHTML = this.renderBEarTraining(slide); break;
+                    case 'bDecisionStand': contentHTML = this.renderBDecisionStand(slide); break;
+                    case 'bWrap': contentHTML = this.renderBWrap(slide); break;
+                    default: contentHTML = `<h1 class="text-2xl">Slide type ${slide.type} not found</h1>`;
+                }
+
+                const mainContainer = document.getElementById('main-container');
+                if (mainContainer) {
+                    mainContainer.innerHTML = `<div class="w-full max-w-6xl fade-in h-full flex flex-col justify-center items-center py-4 md:py-8">${contentHTML}</div>`;
+                    if (slide.speakingStarter) {
+                        mainContainer.innerHTML += this.renderSpeakingStarter(slide.speakingStarter);
+                    }
+                    lucide.createIcons();
+                }
+            },
+
+            renderSpeakingStarter(text) {
+                return `
+                    <div id="speaking-starter-container" class="fixed bottom-28 left-1/2 transform -translate-x-1/2 w-[95%] max-w-4xl z-40 fade-in">
+                        <div class="speaking-hub-panel">
+                            <div class="speaking-hub-badge"><i data-lucide="mic" class="w-3 h-3"></i> 🎙️ SPEAKING HUB</div>
+                            <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
+                                <p id="speaking-starter-text" class="text-base md:text-xl font-bold text-white leading-snug flex-1">${text}</p>
+                                <div class="bg-spotify-green text-black px-6 py-3 rounded-full font-black text-sm uppercase tracking-widest shrink-0 shadow-[0_4px_15px_rgba(29,185,84,0.4)] cursor-pointer hover:scale-105 transition">
+                                    Your Turn
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            // --- SPECIFIC MODULE RENDERERS ---
+            
+            renderBEarTraining(data) {
+                window.checkEar = function(index) {
+                    const slideData = app.trackData[app.currentIndex];
+                    const wordEl = document.getElementById(`ear-w-${index}`);
+                    
+                    if (index === slideData.wrongWordIndex) {
+                        wordEl.classList.add('ear-wrong');
+                        wordEl.innerText = slideData.actualWords[index]; 
+                        app.gainXP(100);
+                        
+                        document.getElementById('ear-feedback').innerHTML = `
+                            <div class="fade-in mt-8 bg-[#181818] p-6 rounded-2xl border border-spotify-green/50 flex items-center gap-4 shadow-[0_0_30px_rgba(29,185,84,0.2)]">
+                                <div class="bg-spotify-green text-black p-2 rounded-full"><i data-lucide="check-circle" class="w-8 h-8"></i></div>
+                                <div>
+                                    <p class="text-spotify-green font-black uppercase tracking-widest text-xs mb-1">Intruder Detected</p>
+                                    <p class="font-bold text-white text-lg">${slideData.successMsg}</p>
+                                </div>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                    } else {
+                        wordEl.classList.add('ear-correct');
+                        app.takeDamage(15);
+                    }
+                };
+
+                const lyricHTML = data.lyric.map((word, i) => `
+                    <span id="ear-w-${i}" onclick="window.checkEar(${i})" class="ear-word mx-2 my-2 inline-block px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-4xl md:text-6xl font-black text-white">${word}</span>
+                `).join('');
+
+                return `
+                    <div class="flex flex-col items-center justify-center w-full max-w-4xl mx-auto text-center min-h-[60vh]">
+                        <div class="mb-12">
+                            <div class="inline-flex items-center justify-center gap-3 bg-red-500/20 text-red-500 px-6 py-2 rounded-full border border-red-500/50 mb-6 font-black tracking-widest uppercase">
+                                <i data-lucide="headphones" class="w-5 h-5"></i> Ear Training
+                            </div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-white max-w-2xl leading-relaxed">${data.instructions}</h2>
+                        </div>
+                        
+                        <div class="glass-card p-10 md:p-16 rounded-3xl w-full border-t-4 border-t-spotify-green shadow-2xl leading-loose">
+                            ${lyricHTML}
+                        </div>
+                        
+                        <div id="ear-feedback" class="w-full min-h-[120px]"></div>
+                    </div>
+                `;
+            },
+
+            renderBGuide(data) {
+                return `
+                    <div class="flex flex-col items-center text-center space-y-8 max-w-3xl w-full">
+                        <div class="w-24 h-24 bg-spotify-green/20 rounded-full flex items-center justify-center border border-spotify-green/50 shadow-[0_0_30px_rgba(29,185,84,0.3)] shrink-0">
+                            <i data-lucide="glasses" class="w-12 h-12 text-spotify-green"></i>
+                        </div>
+                        <h1 class="text-4xl md:text-5xl font-black tracking-tight">${data.title}</h1>
+                        <p class="text-xl text-white/80 leading-relaxed glass-card p-8 rounded-3xl">${data.content}</p>
+                        <button onclick="app.nextSlide()" class="bg-spotify-green hover:bg-spotify-greenHover text-black font-black py-4 px-12 rounded-full transition transform hover:scale-105 text-lg mt-8 shadow-[0_0_20px_rgba(29,185,84,0.4)]">
+                            Acknowledge Briefing
+                        </button>
+                    </div>
+                `;
+            },
+
+            renderBCover(data) {
+                return `
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20 w-full">
+                        <div class="w-72 h-72 md:w-[450px] md:h-[450px] rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10 flex items-center justify-center relative overflow-hidden group shrink-0">
+                            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay transition duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                            <div class="z-10 text-center transform group-hover:scale-110 transition duration-500 bg-black/40 p-6 rounded-full backdrop-blur-md border border-white/20">
+                                <i data-lucide="play" class="w-16 h-16 text-white fill-current ml-2"></i>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center md:items-start text-center md:text-left max-w-lg">
+                            <span class="text-xs font-black uppercase tracking-widest text-spotify-green mb-4">Official Wolffy Track</span>
+                            <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter leading-none text-white">${data.title}</h1>
+                            <h2 class="text-xl md:text-2xl text-spotify-subtext font-semibold mb-8">${data.subtitle}</h2>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-3 mb-12">
+                                ${data.tags ? data.tags.map(tag => `<span class="bg-white/10 backdrop-blur-md text-sm font-bold px-5 py-2.5 rounded-full border border-white/20 text-white">${tag}</span>`).join('') : ''}
+                            </div>
+                            <button onclick="app.nextSlide()" class="btn-start-epic py-4 px-12 rounded-full text-xl flex items-center gap-3">
+                                Start Session <i data-lucide="arrow-right" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderBSoundcheck(data) {
+                return `
+                    <div class="flex flex-col items-center justify-center text-center space-y-10 w-full h-full min-h-[60vh] px-4">
+                        <div class="text-8xl md:text-9xl drop-shadow-[0_0_40px_rgba(255,255,255,0.2)] animate-pulse mb-6">${data.emoji}</div>
+                        <h3 class="text-spotify-green font-black uppercase tracking-widest text-sm mb-2">${data.title || 'Vibe Check'}</h3>
+                        <h2 class="text-4xl md:text-6xl font-black max-w-4xl leading-tight tracking-tight text-white">${data.question}</h2>
+                    </div>
+                `;
+            },
+
+            renderBPreWatch(data) {
+                return `
+                    <div class="flex flex-col items-center justify-center text-center space-y-10 w-full h-full min-h-[70vh] relative px-4">
+                        <div class="absolute inset-0 bg-gradient-to-t from-spotify-green/5 to-transparent pointer-events-none"></div>
+                        <div class="w-32 h-32 bg-spotify-green/10 rounded-full flex items-center justify-center border border-spotify-green/30 animate-pulse mb-6 shadow-[0_0_50px_rgba(29,185,84,0.1)] z-10 shrink-0">
+                            <i data-lucide="eye" class="w-16 h-16 text-spotify-green"></i>
+                        </div>
+                        <span class="text-spotify-green font-black tracking-widest uppercase text-sm z-10">Pre-Watch Protocol</span>
+                        <h2 class="text-5xl md:text-7xl font-black leading-tight tracking-tighter z-10 text-white">${data.title}</h2>
+                        <div class="glass-card p-10 rounded-3xl z-10 max-w-4xl w-full border-t-4 border-t-spotify-green">
+                            <p class="text-2xl text-white/90 leading-relaxed font-medium">${data.task}</p>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderBVideo(data) {
+                return `
+                    <div class="flex flex-col items-center justify-center w-full h-full min-h-[75vh] space-y-8 px-2">
+                        <div class="w-full flex justify-between items-end mb-2 max-w-6xl">
+                            <h2 class="text-2xl md:text-4xl font-black text-white flex items-center gap-3"><i data-lucide="youtube" class="w-10 h-10 text-red-500"></i> ${data.title}</h2>
+                        </div>
+                        <div class="w-full max-w-6xl rounded-3xl p-2 bg-gradient-to-br from-white/10 to-white/5 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                            <div class="relative w-full pb-[56.25%] h-0 rounded-2xl overflow-hidden bg-black">
+                                <iframe src="${data.url}" class="absolute top-0 left-0 w-full h-full" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                        <div class="glass-card p-6 w-full max-w-6xl rounded-2xl flex items-center gap-6 border-l-4 border-l-spotify-green">
+                            <div class="bg-spotify-green/20 p-4 rounded-full shrink-0">
+                                <i data-lucide="crosshair" class="w-8 h-8 text-spotify-green"></i>
+                            </div>
+                            <div>
+                                <p class="text-spotify-green font-black uppercase text-xs mb-2 tracking-widest">Focus Task</p>
+                                <p class="text-white text-xl md:text-2xl font-bold">${data.task}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderBBehindLyrics(data) {
+                window.flipCard = function(el) {
+                    if (el?.classList) {
+                        el.classList.toggle('flipped');
+                    }
+                };
+
+                const cards = data.words ? data.words.map(w => `
+                    <div class="w-full h-80 md:h-[400px] perspective-1000 cursor-pointer group" onclick="flipCard(this)">
+                        <div class="card-inner w-full h-full relative transform-style-3d rounded-3xl shadow-2xl">
+                            <!-- Front -->
+                            <div class="absolute inset-0 backface-hidden glass-card rounded-3xl flex flex-col items-center justify-center p-8 text-center group-hover:border-spotify-green transition duration-300 overflow-hidden">
+                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl font-black text-white/5 select-none pointer-events-none">A</div>
+                                <span class="absolute top-5 right-5 text-[10px] font-black uppercase tracking-widest ${w.rarity==='Epic'?'text-purple-400':(w.rarity==='Rare'?'text-blue-400':'text-spotify-subtext')} bg-black/50 px-3 py-1.5 rounded-full border border-white/10 z-10">
+                                    ${w.rarity}
+                                </span>
+                                <i data-lucide="${w.icon}" class="w-20 h-20 text-white/80 mb-8 group-hover:scale-110 group-hover:text-spotify-green transition duration-300 z-10"></i>
+                                <h3 class="text-4xl font-black mb-4 text-white z-10">${w.concept}</h3>
+                                <p class="text-sm font-bold text-spotify-subtext mt-auto bg-white/5 px-5 py-2.5 rounded-full flex items-center gap-2 z-10"><i data-lucide="mouse-pointer-click" class="w-4 h-4"></i> Tap to decrypt</p>
+                            </div>
+                            <!-- Back -->
+                            <div class="absolute inset-0 backface-hidden bg-spotify-green rounded-3xl flex flex-col items-center justify-center p-8 text-center rotate-y-180 text-black shadow-[0_0_40px_rgba(29,185,84,0.4)]">
+                                <h4 class="text-2xl font-black mb-6 border-b-4 border-black/10 pb-6 w-full leading-snug">${w.def}</h4>
+                                <div class="bg-black/10 p-6 rounded-2xl w-full text-left">
+                                    <p class="text-sm font-black uppercase text-black/60 tracking-widest mb-2"><i data-lucide="help-circle" class="inline w-4 h-4 mb-1"></i> Reflect</p>
+                                    <p class="text-lg font-bold italic opacity-90 mb-4">"${w.q}"</p>
+                                    <p class="text-xs font-black uppercase text-black/60 tracking-widest mb-1">Starter:</p>
+                                    <p class="text-xl font-black text-black">${w.start}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : '';
+
+                return `
+                    <div class="flex flex-col items-center justify-center w-full h-full min-h-[70vh] px-2">
+                        <div class="inline-flex items-center justify-center gap-3 bg-blue-500/20 text-blue-500 px-6 py-2 rounded-full border border-blue-500/50 mb-6 font-black tracking-widest uppercase shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                            <i data-lucide="book-open" class="w-5 h-5"></i> Vocabulary Decryption
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+                            ${cards}
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderBLyricsSync(data) {
+                window.activateLyric = function(index) {
+                    document.querySelectorAll('.lyric-line').forEach(el => el?.classList.remove('lyric-active'));
+                    const activeLine = document.getElementById(`lyric-${index}`);
+                    if (activeLine?.classList) {
+                        activeLine.classList.add('lyric-active');
+                    }
+                    
+                    if (!app.trackData || !app.trackData[app.currentIndex]) return;
+                    const focusData = app.trackData[app.currentIndex].lyrics ? app.trackData[app.currentIndex].lyrics[index] : null;
+                    if (!focusData) return;
+                    
+                    // Ocultar mensagem de placeholder, mostrar conteúdo
+                    const placeholder = document.getElementById('default-sidebar-msg');
+                    if (placeholder) placeholder.classList.add('hidden');
+                    
+                    const contentArea = document.getElementById('active-sidebar-content');
+                    if (contentArea) {
+                        contentArea.classList.remove('hidden');
+                        setTimeout(() => contentArea.classList.remove('opacity-0'), 50);
+                    }
+
+                    const sf = document.getElementById('sidebar-focus');
+                    if (sf) sf.innerText = focusData.focus;
+                    
+                    const sh = document.getElementById('sidebar-hook');
+                    if (sh) sh.innerText = focusData.hook;
+                    
+                    // Show Follow Up section if it exists
+                    const followUpContainer = document.getElementById('sidebar-followup-container');
+                    const sidebarFollowup = document.getElementById('sidebar-followup');
+                    
+                    if(focusData.followUp && followUpContainer && sidebarFollowup) {
+                        followUpContainer.classList.remove('hidden');
+                        sidebarFollowup.innerText = focusData.followUp;
+                    } else if (followUpContainer) {
+                        followUpContainer.classList.add('hidden');
+                    }
+                    
+                    // Update Dynamic Speaking Starter
+                    const starterTextEl = document.getElementById('speaking-starter-text');
+                    const starterContainer = document.getElementById('speaking-starter-container');
+                    if (starterTextEl && starterContainer && focusData.starter) {
+                        starterTextEl.innerHTML = focusData.starter;
+                        starterContainer.classList.remove('fade-in');
+                        void starterContainer.offsetWidth; // trigger reflow
+                        starterContainer.classList.add('fade-in');
+                    }
+                    
+                    if (window.innerWidth < 768) {
+                        const sidebar = document.getElementById('lyric-sidebar');
+                        if(sidebar) sidebar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                };
+
+                const lyricsHTML = data.lyrics ? data.lyrics.map((l, i) => `
+                    <div id="lyric-${i}" class="lyric-line text-3xl md:text-5xl font-black text-[#535353] py-4 pl-6 border-l-4 border-transparent" onclick="activateLyric(${i})">
+                        ${l.text}
+                    </div>
+                `).join('') : '';
+
+                return `
+                    <div class="flex flex-col w-full h-full min-h-[75vh] px-2">
+                        <div class="inline-flex items-center gap-3 bg-purple-500/20 text-purple-400 px-6 py-2 rounded-full border border-purple-500/50 mb-8 font-black tracking-widest uppercase self-start">
+                            <i data-lucide="music-2" class="w-5 h-5"></i> ${data.title || "Lyric Decryption"}
+                        </div>
+                        <div class="flex flex-col md:flex-row w-full flex-1 gap-12">
+                            <!-- Left: Lyrics -->
+                            <div class="w-full md:w-7/12 flex flex-col justify-center space-y-6 md:pr-8 border-l-2 md:border-l-0 md:border-r border-white/10 py-8">
+                                ${lyricsHTML}
+                            </div>
+                            <!-- Right: Genius Sidebar -->
+                            <div class="w-full md:w-5/12 flex flex-col justify-center">
+                                <div id="lyric-sidebar" class="glass-card p-10 rounded-3xl shadow-2xl relative overflow-hidden border-t-4 border-t-spotify-green min-h-[300px] flex flex-col justify-center">
+                                    <div class="absolute top-0 left-0 w-1 md:w-2 h-full bg-spotify-green"></div>
+                                    
+                                    <!-- Default Message -->
+                                    <div id="default-sidebar-msg" class="flex flex-col items-center justify-center text-center">
+                                        <i data-lucide="pointer" class="w-12 h-12 text-spotify-green mb-4 animate-bounce"></i>
+                                        <p class="text-xl font-bold text-spotify-subtext">Click on a lyric line to reveal the grammar secrets.</p>
+                                    </div>
+                                    
+                                    <!-- Active Content -->
+                                    <div id="active-sidebar-content" class="hidden opacity-0 transition-opacity duration-300 w-full">
+                                        <div class="mb-8">
+                                            <h3 class="text-xs uppercase font-black tracking-widest text-spotify-green mb-3">Grammar Focus</h3>
+                                            <div id="sidebar-focus" class="text-3xl md:text-4xl font-black text-white leading-tight">...</div>
+                                        </div>
+                                        <div class="pt-8 border-t border-white/10">
+                                            <h3 class="text-xs uppercase font-black tracking-widest text-spotify-subtext mb-3">Usage Logic</h3>
+                                            <div id="sidebar-hook" class="text-lg md:text-xl text-white/80 italic leading-relaxed font-medium">...</div>
+                                        </div>
+                                        <!-- Dynamic Follow Up -->
+                                        <div id="sidebar-followup-container" class="hidden pt-8 mt-8 border-t border-white/10">
+                                            <h3 class="text-xs uppercase font-black tracking-widest text-spotify-green mb-3 flex items-center gap-2"><i data-lucide="message-square" class="w-4 h-4"></i> Follow-up Question</h3>
+                                            <p id="sidebar-followup" class="text-lg md:text-xl text-white font-bold leading-relaxed">...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderBConceptPillars(data) {
+                window.expandPillar = function(index) {
+                    document.querySelectorAll('.pillar').forEach(el => {
+                        el?.classList.remove('pillar-expanded');
+                        el?.classList.add('pillar-collapsed');
+                        const content = el.querySelector('.pillar-content');
+                        if (content?.classList) {
+                            content.classList.add('hidden');
+                        }
+                    });
+                    const target = document.getElementById(`pillar-${index}`);
+                    if (target?.classList) {
+                        target.classList.add('pillar-expanded');
+                        target.classList.remove('pillar-collapsed');
+                        const content = target.querySelector('.pillar-content');
+                        if (content?.classList) {
+                            content.classList.remove('hidden');
+                            content.classList.add('fade-in');
+                        }
+                        
+                        if (window.innerWidth < 768) {
+                            setTimeout(() => {
+                                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }, 100);
+                        }
+                    }
+                };
+
+                const pillars = data.pillars ? data.pillars.map((p, i) => `
+                    <div id="pillar-${i}" class="pillar ${i===0 ? 'pillar-expanded' : 'pillar-collapsed'} glass-card border border-white/10 rounded-3xl flex flex-col justify-end p-6 md:p-10 relative overflow-hidden min-h-[180px] md:min-h-[60vh] md:h-full w-full md:w-auto" onclick="expandPillar(${i})">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent z-0"></div>
+                        <h2 class="text-3xl md:text-6xl font-black text-white z-10 mb-2 transform md:-rotate-90 md:origin-bottom-left md:absolute md:left-16 md:bottom-16 opacity-80 md:opacity-40 transition-opacity uppercase tracking-widest group-hover:opacity-100 whitespace-nowrap">${p.title}</h2>
+                        
+                        <div class="pillar-content ${i===0 ? '' : 'hidden'} z-10 w-full bg-black/60 backdrop-blur-xl p-6 md:p-10 rounded-2xl border border-white/10 mt-auto shadow-2xl">
+                            <h3 class="text-2xl md:text-4xl font-black text-spotify-green mb-4 hidden md:block">${p.title}</h3>
+                            <p class="text-base md:text-xl text-white/90 mb-8 font-medium leading-relaxed">${p.text}</p>
+                            <div class="border-t border-white/20 pt-6">
+                                <p class="text-sm md:text-base font-bold text-spotify-subtext mb-4 flex items-start gap-2"><i data-lucide="help-circle" class="w-5 h-5 shrink-0 mt-0.5 text-spotify-green"></i> <span>${p.q}</span></p>
+                                <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                                    <p class="text-sm md:text-lg font-black text-white">Starter: <span class="text-spotify-green">${p.start}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : '';
+
+                return `
+                    <div class="flex flex-col w-full h-full min-h-[75vh] px-2">
+                        <h2 class="text-3xl md:text-4xl font-black mb-10 text-white">${data.title || "Concepts"}</h2>
+                        <div class="w-full flex flex-col md:flex-row gap-4 md:gap-6 flex-1">
+                            ${pillars}
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderBLogicGrammar(data) {
+                const rules = data.rules ? data.rules.map(r => `
+                    <div class="glass-card p-8 md:p-12 rounded-3xl hover:border-spotify-green transition duration-300 group shadow-2xl">
+                        <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/5 flex items-center justify-center mb-6 group-hover:bg-spotify-green/20 transition shrink-0">
+                            <i data-lucide="zap" class="w-6 h-6 md:w-8 md:h-8 text-white/50 group-hover:text-spotify-green transition"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-4xl font-black text-white mb-4 group-hover:text-spotify-green transition">${r.rule}</h3>
+                        <p class="text-lg md:text-xl text-white/70 leading-relaxed font-medium">${r.desc}</p>
+                    </div>
+                `).join('') : '';
+
+                return `
+                    <div class="flex flex-col items-center justify-center space-y-12 w-full max-w-6xl mx-auto min-h-[60vh] px-2">
+                        <div class="text-center">
+                            <div class="inline-flex items-center gap-3 bg-spotify-green/20 text-spotify-green px-6 py-2 rounded-full border border-spotify-green/50 mb-8 font-black tracking-widest uppercase">
+                                <i data-lucide="book-open" class="w-5 h-5"></i> Grammar Beats
+                            </div>
+                            <h2 class="text-4xl md:text-6xl font-black tracking-tight text-white">${data.title}</h2>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 w-full">
+                            ${rules}
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderBCategorization(data) {
+                window.catState = { completed: 0, selectedWord: null, selectedElement: null };
+                
+                window.selectWordForMobile = function(el, index) {
+                    if (window.innerWidth >= 768) return; 
+                    if(el.classList.contains('opacity-0') || el.classList.contains('invisible')) return; 
+                    
+                    document.querySelectorAll('.draggable-word').forEach(w => w.classList.remove('ring-4', 'ring-white', 'scale-105'));
+                    el.classList.add('ring-4', 'ring-white', 'scale-105');
+                    window.catState.selectedWord = index;
+                    window.catState.selectedElement = el;
+                };
+
+                window.selectBucketForMobile = function(bucketIndex, ev) {
+                    if (window.innerWidth >= 768) return; 
+                    if(window.catState.selectedWord === null) return;
+                    
+                    window.drop({ preventDefault: () => {}, currentTarget: ev.currentTarget, dataTransfer: { getData: () => window.catState.selectedWord } }, bucketIndex, true);
+                    
+                    if (window.catState.selectedElement) {
+                        window.catState.selectedElement.classList.remove('ring-4', 'ring-white', 'scale-105');
+                    }
+                    window.catState.selectedWord = null;
+                    window.catState.selectedElement = null;
+                };
+                
+                window.dragStart = function(ev, wordIndex) {
+                    ev.dataTransfer.setData("wordIndex", wordIndex);
+                    if (ev.target?.classList) {
+                        ev.target.classList.add('opacity-50', 'scale-95');
+                    }
+                };
+
+                window.dragEnd = function(ev) {
+                    if (ev.target?.classList) {
+                        ev.target.classList.remove('opacity-50', 'scale-95');
+                    }
+                };
+
+                window.allowDrop = function(ev) {
+                    ev.preventDefault();
+                    const bucket = ev.currentTarget;
+                    if(bucket?.classList && !bucket.classList.contains('bucket-over')) {
+                        bucket.classList.add('bucket-over');
+                    }
+                };
+
+                window.dragLeave = function(ev) {
+                    if (ev.currentTarget?.classList) {
+                        ev.currentTarget.classList.remove('bucket-over');
+                    }
+                };
+
+                window.drop = function(ev, bucketIndex, isMobileTap = false) {
+                    if (ev.preventDefault) ev.preventDefault();
+                    if (ev.currentTarget?.classList) {
+                        ev.currentTarget.classList.remove('bucket-over');
+                    }
+                    
+                    const wordIndex = ev.dataTransfer.getData("wordIndex");
+                    if (wordIndex === "" || wordIndex === null) return;
+
+                    if (!app.trackData || !app.trackData[app.currentIndex]) return;
+                    const correctBucket = app.trackData[app.currentIndex].mapping ? app.trackData[app.currentIndex].mapping[wordIndex] : -1;
+                    const wordEl = document.getElementById(`drag-word-${wordIndex}`);
+
+                    if (!wordEl?.classList) return;
+
+                    if (!isMobileTap) {
+                        wordEl.classList.remove('opacity-50', 'scale-95');
+                    }
+
+                    if(bucketIndex == correctBucket) {
+                        app.gainXP(20);
+                        wordEl.setAttribute('draggable', 'false');
+                        wordEl.classList.remove('hover:scale-105', 'cursor-pointer');
+                        wordEl.classList.add('cursor-default', 'bg-spotify-green', 'text-black', 'border-transparent');
+                        
+                        const bucketContent = document.getElementById(`bucket-content-${bucketIndex}`);
+                        if (bucketContent) {
+                            bucketContent.appendChild(wordEl);
+                        }
+                        
+                        window.catState.completed++;
+                        if(data.items && window.catState.completed === data.items.length) {
+                            setTimeout(() => {
+                                const fb = document.getElementById('cat-feedback');
+                                if(fb) {
+                                    fb.innerHTML = `<div class="bg-spotify-green text-black p-4 rounded-xl font-black text-center w-full max-w-sm mx-auto shadow-2xl fade-in text-lg uppercase tracking-widest">Builder Complete! +XP</div>`;
+                                }
+                            }, 300);
+                        }
+                    } else {
+                        app.takeDamage(10);
+                        const targetBucket = isMobileTap ? document.getElementById(`bucket-${bucketIndex}`) : ev.currentTarget;
+                        if (targetBucket?.classList) {
+                            targetBucket.classList.add('pulse-red', 'border-red-500');
+                            setTimeout(() => targetBucket?.classList.remove('pulse-red', 'border-red-500'), 500);
+                        }
+                    }
+                };
+
+                const words = data.items ? data.items.map((item, i) => `
+                    <div id="drag-word-${i}" class="draggable-word px-6 md:px-8 py-3 md:py-4 text-sm md:text-xl transition-all duration-200 shadow-lg hover:scale-105" draggable="true" ondragstart="dragStart(event, ${i})" ondragend="dragEnd(event)" onclick="selectWordForMobile(this, ${i})">
+                        ${item}
+                    </div>
+                `).join('') : '';
+
+                const buckets = data.buckets ? data.buckets.map((b, i) => `
+                    <div id="bucket-${i}" class="glass-card drop-zone rounded-3xl p-6 md:p-10 flex flex-col items-center min-h-[200px] md:min-h-[280px] transition-all duration-300 cursor-pointer relative overflow-hidden" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event, ${i})" onclick="selectBucketForMobile(${i}, event)">
+                        <h3 class="text-xl md:text-2xl font-black text-spotify-green mb-6 pointer-events-none text-center tracking-widest uppercase">${b}</h3>
+                        <div id="bucket-content-${i}" class="flex flex-wrap justify-center gap-3 md:gap-4 w-full pointer-events-none mt-auto mb-auto z-10"></div>
+                    </div>
+                `).join('') : '';
+
+                return `
+                    <div class="flex flex-col items-center justify-center w-full max-w-6xl mx-auto space-y-10 md:space-y-16 min-h-[75vh] px-2">
+                        <div class="text-center">
+                            <div class="inline-flex items-center gap-3 bg-yellow-500/20 text-yellow-400 px-6 py-2 rounded-full border border-yellow-500/50 mb-6 font-black tracking-widest uppercase">
+                                <i data-lucide="blocks" class="w-5 h-5"></i> Lyric Builder
+                            </div>
+                            <h2 class="text-3xl md:text-5xl font-black text-white">${data.title}</h2>
+                        </div>
+                        
+                        <div id="words-container" class="flex flex-wrap justify-center gap-3 md:gap-5 w-full max-w-4xl p-6 rounded-3xl bg-white/5 border border-white/10 shadow-inner">
+                            ${words}
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12 w-full">
+                            ${buckets}
+                        </div>
+                        <div id="cat-feedback" class="w-full h-12 mt-4"></div>
+                    </div>
+                `;
+            },
+
+            renderBRhythmCheck(data) {
+                window.checkAnswer = function(index) {
+                    if (!app.trackData || !app.trackData[app.currentIndex]) return;
+                    const slideData = app.trackData[app.currentIndex];
+                    const btn = document.getElementById(`opt-${index}`);
+                    
+                    document.querySelectorAll('.rhythm-btn').forEach(b => { if(b) b.disabled = true; });
+                    
+                    if (!btn?.classList) return;
+
+                    if(index === slideData.correct) {
+                        btn.classList.replace('bg-[#282828]', 'bg-spotify-green');
+                        btn.classList.replace('text-white', 'text-black');
+                        btn.classList.add('scale-105');
+                        app.gainXP(50);
+                        const feedback = document.getElementById('rhythm-feedback');
+                        if (feedback) {
+                            feedback.innerHTML = `
+                                <div class="fade-in mt-4 md:mt-8 bg-[#181818] p-4 md:p-6 rounded-xl border-l-4 border-spotify-green text-left flex gap-3 md:gap-5 items-center shadow-2xl">
+                                    <div class="bg-spotify-green/20 p-2 md:p-3 rounded-full shrink-0">
+                                        <i data-lucide="check-circle" class="w-6 h-6 md:w-8 md:h-8 text-spotify-green"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-black text-white text-base md:text-xl">${slideData.successMsg}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        lucide.createIcons();
+                    } else {
+                        btn.classList.replace('bg-[#282828]', 'bg-red-500');
+                        app.takeDamage(25);
+                        const feedback = document.getElementById('rhythm-feedback');
+                        if (feedback) {
+                            feedback.innerHTML = `
+                                <div class="fade-in mt-4 md:mt-8 p-4 md:p-6 text-center bg-red-900/10 rounded-xl border border-red-500/30">
+                                    <p class="text-red-500 font-black text-lg md:text-xl mb-3 md:mb-4">Missed the Beat!</p>
+                                    <button onclick="app.renderSlide()" class="text-xs md:text-sm font-bold uppercase tracking-widest text-spotify-subtext hover:text-white bg-[#181818] px-5 py-2 md:px-6 md:py-3 rounded-full border border-[#3E3E3E] transition">Try Again <i data-lucide="rotate-ccw" class="inline w-3 h-3 md:w-4 md:h-4 ml-1"></i></button>
+                                </div>
+                            `;
+                        }
+                        lucide.createIcons();
+                    }
+                };
+
+                const options = data.options ? data.options.map((opt, i) => `
+                    <button id="opt-${i}" onclick="checkAnswer(${i})" class="rhythm-btn w-full bg-[#282828] hover:bg-[#3E3E3E] text-white font-black py-4 md:py-6 px-6 md:px-8 rounded-xl md:rounded-2xl transition-all duration-300 border border-[#3E3E3E] hover:border-white/30 text-lg md:text-2xl shadow-lg">
+                        ${opt}
+                    </button>
+                `).join('') : '';
+
+                return `
+                    <div class="flex flex-col items-center justify-center w-full max-w-3xl mx-auto text-center min-h-[60vh] px-2">
+                        <div class="mb-8 md:mb-12 p-6 md:p-10 glass-card rounded-2xl md:rounded-3xl w-full relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-gradient-to-bl from-spotify-green/20 to-transparent"></div>
+                            <span class="text-spotify-green uppercase tracking-widest text-xs md:text-sm font-black mb-3 md:mb-4 block flex items-center justify-center gap-2"><i data-lucide="swords" class="w-3 h-3 md:w-4 md:h-4"></i> Checkpoint</span>
+                            <h2 class="text-2xl md:text-5xl font-black leading-tight tracking-tight">${data.question}</h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full">
+                            ${options}
+                        </div>
+                        
+                        <div id="rhythm-feedback" class="w-full min-h-[100px] md:min-h-[128px]"></div>
+                    </div>
+                `;
+            },
+
+            renderBDecisionStand(data) {
+                window.updateSliderValue = function(val) {
+                    const btn = document.getElementById('defend-btn');
+                    if(btn?.classList && btn.classList.contains('opacity-0')) {
+                        btn.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+                    }
+                    
+                    const sliderValEl = document.getElementById('slider-val');
+                    if (sliderValEl) sliderValEl.innerText = `${val}%`;
+                    
+                    const track = document.getElementById('decision-track');
+                    if (track?.style) {
+                        const percentage = val;
+                        track.style.background = `linear-gradient(to right, #1DB954 ${percentage}%, rgba(255,255,255,0.2) ${percentage}%)`;
+                    }
+                    
+                    const thumb = document.getElementById('slider-thumb-visual');
+                    if (thumb?.style) {
+                        thumb.style.left = val + '%';
+                    }
+                };
+
+                return `
+                    <div class="flex flex-col items-center justify-center w-full max-w-4xl mx-auto text-center space-y-10 md:space-y-16 min-h-[60vh] px-2">
+                        <div class="bg-spotify-green/20 p-6 rounded-full border border-spotify-green/50 shadow-[0_0_30px_rgba(29,185,84,0.3)] shrink-0">
+                            <i data-lucide="scale" class="w-12 h-12 md:w-16 md:h-16 text-spotify-green"></i>
+                        </div>
+                        <h2 class="text-4xl md:text-6xl font-black leading-tight tracking-tight text-white max-w-3xl">${data.question}</h2>
+                        
+                        <div class="w-full glass-card p-10 md:p-16 rounded-3xl relative">
+                            <div class="text-5xl md:text-7xl font-black text-spotify-green mb-12 drop-shadow-[0_0_20px_rgba(29,185,84,0.4)]" id="slider-val">50%</div>
+                            
+                            <div class="relative w-full h-3 rounded-full bg-white/20" id="decision-track" style="background: linear-gradient(to right, #1DB954 50%, rgba(255,255,255,0.2) 50%);">
+                                <input type="range" min="0" max="100" value="50" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" oninput="updateSliderValue(this.value)" ontouchmove="updateSliderValue(this.value)">
+                                <div class="pointer-events-none absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.8)] z-0 transition-all duration-75" style="left: 50%" id="slider-thumb-visual"></div>
+                            </div>
+
+                            <div class="flex justify-between w-full mt-10 text-xs md:text-base font-black uppercase tracking-widest text-spotify-subtext">
+                                <span class="max-w-[40%] text-left leading-tight">${data.labels ? data.labels[0] : ''}</span>
+                                <span class="max-w-[40%] text-right leading-tight">${data.labels ? data.labels[1] : ''}</span>
+                            </div>
+                        </div>
+
+                        <button id="defend-btn" onclick="app.gainXP(150); this.innerHTML='<i data-lucide=\\'check\\' class=\\'w-6 h-6\\'></i> Stance Recorded'; this.disabled=true; if(this.classList) this.classList.replace('bg-white', 'bg-spotify-green'); lucide.createIcons();" class="opacity-0 translate-y-4 pointer-events-none transition-all duration-500 bg-white text-black font-black py-5 md:py-6 px-10 md:px-14 rounded-full hover:scale-105 flex items-center justify-center gap-3 text-lg md:text-2xl shadow-xl w-full md:w-auto">
+                            Lock Your Answer
+                        </button>
+                    </div>
+                `;
+            },
+
+            renderBWrap(data) {
+                return `
+                    <div class="flex flex-col items-center justify-center text-center space-y-10 md:space-y-12 min-h-[60vh] px-4">
+                        <div class="relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center shrink-0">
+                            <div class="absolute inset-0 bg-spotify-green rounded-full opacity-20 animate-ping"></div>
+                            <div class="absolute inset-4 bg-spotify-green rounded-full opacity-40 blur-xl"></div>
+                            <i data-lucide="award" class="w-24 h-24 md:w-28 md:h-28 text-white relative z-10"></i>
+                        </div>
+                        <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter text-white leading-none py-2">${data.title}</h1>
+                        <p class="text-xl md:text-3xl font-medium text-spotify-subtext max-w-3xl leading-relaxed">${data.msg}</p>
+                        
+                        <div class="flex flex-col md:flex-row gap-6 md:gap-10 w-full md:w-auto mt-8 md:mt-12">
+                            <div class="glass-card px-10 py-6 md:px-14 md:py-8 rounded-3xl text-center flex-1">
+                                <p class="text-sm md:text-base font-black text-spotify-subtext uppercase tracking-widest mb-2">Final HP</p>
+                                <p class="text-5xl md:text-6xl font-black text-white">${app.hp}</p>
+                            </div>
+                            <div class="glass-card px-10 py-6 md:px-14 md:py-8 rounded-3xl text-center border-t-4 border-t-spotify-green flex-1">
+                                <p class="text-sm md:text-base font-black text-spotify-subtext uppercase tracking-widest mb-2">Total XP</p>
+                                <p class="text-5xl md:text-6xl font-black text-spotify-green drop-shadow-[0_0_15px_rgba(29,185,84,0.6)]">${app.xp}</p>
+                            </div>
+                        </div>
+
+                        <button onclick="app.goHome()" class="mt-12 md:mt-20 text-white/50 font-bold hover:text-white transition flex items-center justify-center gap-3 bg-white/5 w-full md:w-auto px-10 py-5 rounded-full hover:bg-white/10 text-lg">
+                            <i data-lucide="log-out" class="w-6 h-6"></i> Return to Mission Select
+                        </button>
+                    </div>
+                `;
+            }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
